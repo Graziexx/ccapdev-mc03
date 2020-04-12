@@ -17,6 +17,21 @@ $(document).ready(function () {
     */
     $('#number').keyup(function () {
         // your code here
+        var number = $('#number').val();
+
+        $.get('/getCheckNumber', {number: number}, function (result) {
+
+            if(result.number == number) {
+                $('#number').css('background-color', 'red');
+                $('#error').text('ID number already registered');
+                $('#submit').prop('disabled', true);
+            }
+            else {
+                $('#number').css('background-color', '#E3E3E3');
+                $('#error').text('');
+                $('#submit').prop('disabled', false);
+            }
+        });
     });
 
     /*
@@ -29,9 +44,46 @@ $(document).ready(function () {
             refreshing the page, after the values are saved in the database.
 
             The name and the number fields are reset to empty values.
+
     */
     $('#submit').click(function () {
         // your code here
+
+        var flag = 0;
+
+        document.getElementById('error').value = '';
+        
+        if(document.getElementById('name').value == '' && document.getElementById('number').value == '')
+        {
+            flag = 1;
+            document.getElementById('error').innerHTML = 'Input name and number required.';
+        }
+
+        if(document.getElementById('name').value == '' && document.getElementById('number').value != '')
+        {
+            flag = 1;
+            document.getElementById('error').innerHTML = 'Input name required.';
+        }
+
+        if(document.getElementById('number').value == '' && document.getElementById('name').value != '')
+        {
+            flag = 1;
+            document.getElementById('error').innerHTML = 'Input number required.';
+        }
+
+        if(flag == 0)
+        {
+            var name = document.getElementById('name').value;
+            var number = document.getElementById('number').value;
+
+            $.get('/add', {name: name, number: number}, function(result){
+                $('body').load('/');
+            });
+
+            document.getElementById('name').value = '';
+            document.getElementById('number').value = '';
+            document.getElementById('error').innerHTML = '';
+        }
     });
 
     /*
@@ -43,6 +95,11 @@ $(document).ready(function () {
     */
     $('#contacts').on('click', '.remove', function () {
         // your code here
+        var number = $(this).parent('div').children('.info').children('p').last().text();
+        
+        $.get('/delete', {number: number}, function (result){});
+
+        $(this).parent().remove();
     });
 
 })
